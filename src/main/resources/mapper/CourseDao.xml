@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.demo.study.dao.CourseDao">
+    <select id="queryCourseCategoryList" resultType="com.demo.study.entity.CourseCategorybean">
+        select distinct category_id from study_course_menus
+    </select>
+
+    <select id="queryCourseList" resultType="com.demo.study.entity.CourseListBean">
+        select * from study_course_menus
+        <where>
+            <if test="categoryId>0">
+                category_id=#{categoryId}
+            </if>
+        </where>
+        order by study_times desc
+        limit #{pageNum},#{pageSize}
+    </select>
+
+    <select id="queryCourseDetail" resultType="com.demo.study.entity.CourseListBean">
+        select * from study_course_menus
+        where id=#{id}
+    </select>
+
+    <select id="queryCourseMenuList" resultType="com.demo.study.entity.CourseMenuBean">
+        select * from study_course where menu_id=#{menuId}
+    </select>
+</mapper>

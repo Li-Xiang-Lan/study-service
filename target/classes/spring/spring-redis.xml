@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+<!--    配置连接池-->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="5000"/>
+        <property name="maxIdle" value="5000"/>
+        <property name="maxWaitMillis" value="10000"/>
+        <property name="testOnBorrow" value="true"/>
+    </bean>
+
+
+    <bean id="jedisWritePool" class="com.demo.study.cache.JedisPoolWriper" depends-on="jedisPoolConfig">
+        <constructor-arg index="0" ref="jedisPoolConfig"/>
+        <constructor-arg index="1" value="127.0.0.1"/>
+        <constructor-arg index="2" value="6379"/>
+    </bean>
+
+    <bean id="jedisUtil" class="com.demo.study.cache.JedisUtil" scope="singleton">
+        <property name="jedisPool">
+            <ref bean="jedisWritePool"/>
+        </property>
+    </bean>
+
+    <bean id="jedisKeys" class="com.demo.study.cache.JedisUtil$Keys" scope="singleton">
+        <constructor-arg ref="jedisUtil"></constructor-arg>
+    </bean>
+
+    <bean id="jedisStrings" class="com.demo.study.cache.JedisUtil$Strings" scope="singleton">
+        <constructor-arg ref="jedisUtil"></constructor-arg>
+    </bean>
+</beans>
