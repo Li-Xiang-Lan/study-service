@@ -4,11 +4,11 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.demo.study.dao.CourseDao">
     <select id="queryCourseCategoryList" resultType="com.demo.study.entity.CourseCategorybean">
-        select distinct category_id from study_course_menus
+        select distinct category_id from course_menus
     </select>
 
     <select id="queryCourseList" resultType="com.demo.study.entity.CourseListBean">
-        select * from study_course_menus
+        select * from course_menus
         <where>
             <if test="categoryId>0">
                 category_id=#{categoryId}
@@ -19,11 +19,48 @@
     </select>
 
     <select id="queryCourseDetail" resultType="com.demo.study.entity.CourseListBean">
-        select * from study_course_menus
+        select * from course_menus
         where id=#{id}
     </select>
 
     <select id="queryCourseMenuList" resultType="com.demo.study.entity.CourseMenuBean">
-        select * from study_course where menu_id=#{menuId}
+        select * from course where menu_id=#{menuId}
     </select>
+
+
+    <resultMap id="commentMap" type="com.demo.study.entity.CourseCommentBean">
+        <id column="id" property="id"/>
+        <result column="content" property="content"/>
+        <result column="create_time" property="createTime"/>
+        <association property="user" column="id" javaType="com.demo.study.entity.User">
+            <id column="id" property="id"/>
+            <result column="user_name" property="userName"/>
+            <result column="user_sex" property="userSex"/>
+            <result column="head_url" property="headUrl"/>
+        </association>
+    </resultMap>
+    <select id="queryCourseComment" resultMap="commentMap">
+        select
+        cc.id,
+        cc.content,
+        cc.create_time,
+        u.id,
+        u.user_name,
+        u.user_sex,
+        u.head_url
+        from
+        course_comment cc,
+        user u
+        where cc.user_id=u.id and cc.menu_id=#{menuId}
+        order by cc.create_time desc
+        limit #{pageNum},#{pageSize}
+    </select>
+    
+    <insert id="insertCourseComment">
+        insert into course_comment (user_id,content,create_time,menu_id) values (#{userId},#{content},#{createTime},#{menuId});
+    </insert>
+
+    <insert id="insertMoneyRecord" parameterType="com.demo.study.entity.MoneyRecordBean">
+        insert into user_wallet_record (user_id,menu_id,create_time,title,price,type) values (#{userId},#{menuId},#{createTime},#{title},#{price},#{type});
+    </insert>
 </mapper>

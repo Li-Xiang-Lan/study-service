@@ -2,10 +2,7 @@ package com.demo.study.web.course;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.demo.study.entity.BaseBackBean;
-import com.demo.study.entity.CourseCategorybean;
-import com.demo.study.entity.CourseListBean;
-import com.demo.study.entity.CourseMenuBean;
+import com.demo.study.entity.*;
 import com.demo.study.service.CourseService;
 import com.demo.study.service.UserService;
 import com.demo.study.util.Status;
@@ -14,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -33,6 +31,15 @@ public class CourseController {
             for (CourseCategorybean bean:categoryList){
                 bean.setTitle(getCategoryString(bean.getCategoryId()));
             }
+
+            for (int i = 0; i < categoryList.size()-1; i++) {
+                for (int j = categoryList.size()-1; j > i; j--) {
+                    if (categoryList.get(j).getTitle().equals(categoryList.get(i).getTitle())) {
+                        categoryList.remove(j);
+                    }
+                }
+            }
+            
             backBean.setStatus(Status.STATUS_SUCCESS);
             backBean.setData(categoryList);
         } catch (Exception e) {
@@ -155,6 +162,65 @@ public class CourseController {
         } catch (Exception e) {
             backBean.setStatus(Status.STATUS_FAIL);
             backBean.setErrorMsg("获取课程目录异常");
+        }
+        return backBean;
+    }
+
+    @RequestMapping(value = "getcoursecomment.do",method = RequestMethod.POST)
+    @ResponseBody
+    private BaseBackBean getCourseCommentList(@RequestBody String str){
+        BaseBackBean backBean = new BaseBackBean();
+        try {
+            JSONObject jsonObject = JSON.parseObject(str);
+            Integer menuId = jsonObject.getInteger("menuId");
+            Integer pageNum = jsonObject.getInteger("pageNum");
+            Integer pageSize = jsonObject.getInteger("pageSize");
+            List<CourseCommentBean> commentList = courseService.getCourseCommentList(menuId, pageNum, pageSize);
+            backBean.setStatus(Status.STATUS_SUCCESS);
+            backBean.setData(commentList);
+        } catch (Exception e) {
+            System.out.println("======"+e.getMessage());
+            backBean.setStatus(Status.STATUS_FAIL);
+            backBean.setErrorMsg("获取评论列表异常");
+        }
+        return backBean;
+    }
+
+    @RequestMapping(value = "addcoursecomment.do",method = RequestMethod.POST)
+    @ResponseBody
+    private BaseBackBean addCourseCommentList(@RequestBody String str,@RequestHeader("userId")Integer userId){
+        BaseBackBean backBean = new BaseBackBean();
+        try {
+            JSONObject jsonObject = JSON.parseObject(str);
+            String content = jsonObject.getString("content");
+            Integer menuId = jsonObject.getInteger("menuId");
+            int num = courseService.addCourseComment(userId, content, new Date(), menuId);
+            if (num<=0){
+                backBean.setStatus(Status.STATUS_FAIL);
+                backBean.setErrorMsg("发表评论失败");
+            }else {
+                backBean.setStatus(Status.STATUS_SUCCESS);
+            }
+        } catch (Exception e) {
+            System.out.println("============"+e.getMessage());
+            backBean.setStatus(Status.STATUS_FAIL);
+            backBean.setErrorMsg("发表评论异常");
+        }
+        return backBean;
+    }
+
+
+    @RequestMapping(value = "buycourse.do",method = RequestMethod.POST)
+    @ResponseBody
+    private BaseBackBean buyCourse(@RequestBody String str,@RequestHeader("userId")Integer userId){
+        BaseBackBean backBean = new BaseBackBean();
+        JSONObject jsonObject = JSON.parseObject(str);
+        Integer menuId = jsonObject.getInteger("menuId");
+        try {
+            backBean = courseService.buyCourse(userId, menuId);
+        } catch (Exception e) {
+            backBean.setStatus(Status.STATUS_FAIL);
+            backBean.setErrorMsg(e.getMessage());
         }
         return backBean;
     }

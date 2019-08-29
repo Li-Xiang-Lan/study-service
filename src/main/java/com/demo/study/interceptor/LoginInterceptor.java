@@ -22,7 +22,6 @@ public class LoginInterceptor implements HandlerInterceptor {
         if (request.getServletPath().endsWith(".do")){
             String userId = request.getHeader("userId");
             String session = request.getHeader("session");
-            System.out.println("========="+userId+"..."+session);
             if (Util.isEmpty(userId)|| Util.isEmpty(session)){
                 reLogin(response,"请求头出错");
                 return false;
