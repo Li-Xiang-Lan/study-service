@@ -138,7 +138,9 @@ public class UserController {
         try {
             int userMoney = userService.getUserMoney(userId);
             backBean.setStatus(Status.STATUS_SUCCESS);
-            backBean.setData(userMoney);
+            Map<String,Integer> map=new HashMap<>();
+            map.put("money",userMoney);
+            backBean.setData(map);
         } catch (Exception e) {
             backBean.setStatus(Status.STATUS_FAIL);
             backBean.setErrorMsg("获取钱包数量异常");

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,6 +29,7 @@ public class CourseController {
         BaseBackBean backBean = new BaseBackBean();
         try {
             List<CourseCategorybean> categoryList = courseService.getCourseCategoryList();
+            List<CourseCategorybean> list=new ArrayList<>();
             for (CourseCategorybean bean:categoryList){
                 bean.setTitle(getCategoryString(bean.getCategoryId()));
             }
@@ -39,9 +41,17 @@ public class CourseController {
                     }
                 }
             }
+            for (CourseCategorybean bean:categoryList){
+                Integer categoryId = bean.getCategoryId();
+                if (categoryId==1||categoryId==2||categoryId==7||categoryId==8||categoryId==9||categoryId==11){
+                    list.add(0,bean);
+                }else {
+                    list.add(bean);
+                }
+            }
             
             backBean.setStatus(Status.STATUS_SUCCESS);
-            backBean.setData(categoryList);
+            backBean.setData(list);
         } catch (Exception e) {
             backBean.setStatus(Status.STATUS_FAIL);
             backBean.setErrorMsg("获取课程类型异常");
@@ -166,7 +176,7 @@ public class CourseController {
         return backBean;
     }
 
-    @RequestMapping(value = "getcoursecomment.do",method = RequestMethod.POST)
+    @RequestMapping(value = "getcoursecomment",method = RequestMethod.POST)
     @ResponseBody
     private BaseBackBean getCourseCommentList(@RequestBody String str){
         BaseBackBean backBean = new BaseBackBean();
